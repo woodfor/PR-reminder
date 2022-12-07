@@ -1,10 +1,6 @@
 '''
 Author: woodfor woodforlol@gmail.com
 Date: 2022-12-07 19:28:12
-LastEditors: woodfor woodforlol@gmail.com
-LastEditTime: 2022-12-07 19:33:23
-FilePath: \pr-reminder\PR-reminder\dataset-creator.py
-Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
 '''
 import requests
 
