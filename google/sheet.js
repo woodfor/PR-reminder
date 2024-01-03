@@ -67,29 +67,6 @@ async function authorize() {
   return client;
 }
 
-/**
- * Prints the names and majors of students in a sample spreadsheet:
- * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
- * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
- */
-async function listMajors(auth) {
-  const sheets = google.sheets({ version: "v4", auth });
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: "11lASyc9ZKRX0bcohvR1ZU2vCDutDv6Qued4hLOAofwg",
-    range: "Class Data!A2:E",
-  });
-  const rows = res.data.values;
-  if (!rows || rows.length === 0) {
-    console.log("No data found.");
-    return;
-  }
-  console.log("Name, Major:");
-  rows.forEach((row) => {
-    // Print columns A and E, which correspond to indices 0 and 4.
-    console.log(`${row[0]}, ${row[4]}`);
-  });
-}
-
 // grab the spreadsheet info
 const getSpreadsheetInfo = async (auth, spreadsheetId) => {
   const service = google.sheets({ version: "v4", auth });
@@ -148,6 +125,7 @@ const generateTestDocWithTemplate = async (
   spreadsheetId,
   instructionSheetID,
   title,
+  testPurpose,
   testScopes
 ) => {
   const duplicateRes = await duplicateSheet(
@@ -177,19 +155,42 @@ const generateTestDocWithTemplate = async (
     },
   }));
   const valuesUpdateRequest = {
-    requests: {
-      updateCells: {
-        fields: "*",
-        range: {
-          sheetId: newSheetId,
-          startRowIndex: 7,
-          endRowIndex: 7 + testScopes.length,
-          startColumnIndex: 0,
-          endColumnIndex: 1,
+    requests: [
+      {
+        updateCells: {
+          fields: "*",
+          range: {
+            sheetId: newSheetId,
+            startRowIndex: 1,
+            endRowIndex: 2,
+            startColumnIndex: 0,
+            endColumnIndex: 1,
+          },
+          rows: [
+            {
+              values: {
+                userEnteredValue: {
+                  stringValue: testPurpose,
+                },
+              },
+            },
+          ],
         },
-        rows: [...updatedValues],
       },
-    },
+      {
+        updateCells: {
+          fields: "*",
+          range: {
+            sheetId: newSheetId,
+            startRowIndex: 6,
+            endRowIndex: 6 + testScopes.length,
+            startColumnIndex: 0,
+            endColumnIndex: 1,
+          },
+          rows: [...updatedValues],
+        },
+      },
+    ],
   };
 
   try {
@@ -204,11 +205,8 @@ const generateTestDocWithTemplate = async (
   }
 };
 
-// authorize().then(listMajors).catch(console.error);
-
 export {
   authorize,
-  listMajors,
   generateTestDocWithTemplate,
   getSpreadsheetInfo,
   duplicateSheet,
