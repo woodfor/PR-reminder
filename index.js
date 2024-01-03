@@ -1,4 +1,4 @@
-import { readPullRequest } from "./git/pr.js";
+import { readPullRequest, getGitInfo } from "./git/pr.js";
 import { parse } from "marked";
 import { load } from "cheerio";
 import _ from "lodash";
@@ -10,8 +10,7 @@ import {
   getSubSheet,
 } from "./google/sheet.js";
 
-const TOKEN =
-  "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";
+const TOKEN = process.env.GITHUB_OAUTH_TOKEN || "";
 
 const OWNER = "woodfor";
 
@@ -23,7 +22,13 @@ const SHEET_ID = "1CxlNWhaPouOzBZrM7XwiSuX_P9Q93kLXUm-99g8vLCE";
 
 const main = async () => {
   //   authorize().then(listMajors).catch(console.error);
-  const body = await readPullRequest(TOKEN, OWNER, REPO, PULL_NUMBER);
+  const gitInfo = await getGitInfo();
+  if (!gitInfo) {
+    console.log("No git info found");
+    return;
+  }
+  const { repoName, repoOwner, currentBranch } = gitInfo;
+  const body = await readPullRequest(TOKEN, repoOwner, repoName, currentBranch);
   const markdownToHTML = parse(body);
   console.log(markdownToHTML);
   const $ = load(markdownToHTML);
