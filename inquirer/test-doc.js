@@ -1,20 +1,29 @@
 import inquirer from "inquirer";
 
-const promptTestSheetIDQuestions = async () => {
+const promptTestSheetAndDocIDQuestions = async () => {
   const question = [
     {
       type: "input",
       name: "testSheetID",
       message: "Please enter the test sheet ID:",
-      validate: function (input) {
+      validate: (input) => {
         // Basic validation to check if input is not empty
         return input.length > 0 || "Please enter a valid sheet ID.";
+      },
+    },
+    {
+      type: "input",
+      name: "testDocID",
+      message: "Please enter the test doc ID:",
+      validate: (input) => {
+        // Basic validation to check if input is not empty
+        return input.length > 0 || "Please enter a valid doc ID.";
       },
     },
   ];
 
   const answer = await inquirer.prompt(question);
-  return answer.testSheetID;
+  return { sheetId: answer.testSheetID, docId: answer.testDocID };
 };
 
 const promptGenerateTestDocQuestions = async () => {
@@ -30,8 +39,8 @@ const promptGenerateTestDocQuestions = async () => {
   const answer = await inquirer.prompt(question);
   const { generateTestSheet } = answer;
   if (generateTestSheet) {
-    const testSheetID = await promptTestSheetIDQuestions();
-    return { generate: generateTestSheet, sheetId: testSheetID };
+    const { sheetId, docId } = await promptTestSheetAndDocIDQuestions();
+    return { generate: generateTestSheet, sheetId, docId };
   }
   return { generate: generateTestSheet };
 };
